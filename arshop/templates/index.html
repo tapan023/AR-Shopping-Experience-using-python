@@ -1,0 +1,120 @@
+{% extends "base.html" %} {% block title %}Home - Obsedian{% endblock %} {%
+block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+  <div class="max-w-7xl mx-auto px-4 text-center">
+    <h1 class="text-5xl font-bold mb-6">Welcome to Obsedian</h1>
+    <p class="text-xl mb-8">
+      Discover premium products that redefine excellence
+    </p>
+    <a
+      href="{{ url_for('products') }}"
+      class="bg-white text-blue-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition duration-300"
+    >
+      Shop Now
+    </a>
+  </div>
+</section>
+
+<!-- Featured Products - Flexbox Version -->
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center mb-12">Featured Products</h2>
+
+    <!-- Flexbox container -->
+    <div class="flex flex-wrap justify-center gap-8">
+      {% for product in products %}
+      <div
+        class="w-full sm:w-80 bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition duration-300 group"
+      >
+        <!-- Product Image with Hover Effect -->
+        <div class="relative overflow-hidden">
+          <img
+            src="{{ product.main_image or '/static/images/placeholder.jpg' }}"
+            alt="{{ product.name }}"
+            class="w-full h-48 object-cover transition duration-300 group-hover:opacity-0"
+          />
+
+          <!-- Second Image (shown on hover) -->
+          <img
+            src="{{ product.images[0].image_url if product.images else product.main_image }}"
+            alt="{{ product.name }} - alternate view"
+            class="absolute top-0 left-0 w-full h-48 object-cover opacity-0 transition duration-300 group-hover:opacity-100"
+          />
+        </div>
+
+        <div class="p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-2 truncate">
+            {{ product.name }}
+          </h3>
+          <p class="text-sm text-gray-600 mb-4">
+            {{ product.description[:80] }}{% if product.description|length > 80
+            %}...{% endif %}
+          </p>
+
+          <div class="flex items-center justify-between">
+            <span class="text-xl font-bold text-blue-600"
+              >${{ product.price }}</span
+            >
+            <a
+              href="{{ url_for('product_detail', product_id=product.id) }}"
+              class="bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600 transition duration-300"
+            >
+              View Details
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    
+</section>
+
+<!-- Features Section -->
+<section class="bg-gray-100 py-16">
+  <div class="max-w-7xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="text-center">
+        <div
+          class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-shipping-fast text-2xl text-blue-600"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Free Shipping</h3>
+        <p class="text-gray-600">Free shipping on all orders over $100</p>
+      </div>
+      <div class="text-center">
+        <div
+          class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-shield-alt text-2xl text-green-600"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Secure Payment</h3>
+        <p class="text-gray-600">100% secure payment processing</p>
+      </div>
+      <div class="text-center">
+        <div
+          class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <i class="fas fa-headset text-2xl text-purple-600"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">24/7 Support</h3>
+        <p class="text-gray-600">Round-the-clock customer support</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Smooth image transitions */
+  .group:hover img {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+  }
+</style>
+{% endblock %}

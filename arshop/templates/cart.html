@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - LuxuryShop{% endblock %}
+
+{% block content %}
+<section class="py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Your Shopping Cart</h1>
+        
+        {% if cart_items %}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-6">Cart Items ({{ cart_items|length }})</h2>
+                    
+                    {% for item in cart_items %}
+                    <div class="flex items-center border-b border-gray-200 py-6">
+                        <!-- Product Image -->
+                        <div class="flex-shrink-0 w-20 h-20">
+                            <img src="{{ item.product.main_image or '/static/images/placeholder.jpg' }}" 
+                                 alt="{{ item.product.name }}" 
+                                 class="w-full h-full object-cover rounded">
+                        </div>
+                        
+                        <!-- Product Details -->
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800">{{ item.product.name }}</h3>
+                            <p class="text-sm text-gray-600">{{ item.product.description[:50] }}...</p>
+                            <p class="text-blue-600 font-bold">${{ item.product.price }}</p>
+                        </div>
+                        
+                        <!-- Quantity Controls -->
+                        <div class="ml-4">
+                            <div class="flex items-center space-x-2">
+                                <form action="{{ url_for('update_cart', cart_id=item.id) }}" method="POST" class="flex items-center">
+                                    <button type="submit" name="action" value="decrease" 
+                                            class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                                        <i class="fas fa-minus text-sm"></i>
+                                    </button>
+                                    
+                                    <span class="mx-2 font-semibold">{{ item.quantity }}</span>
+                                    
+                                    <button type="submit" name="action" value="increase" 
+                                            class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center hover:bg-gray-300">
+                                        <i class="fas fa-plus text-sm"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Subtotal -->
+                        <div class="ml-4 text-right">
+                            <p class="text-lg font-bold text-blue-600">
+                                ${{ "%.2f"|format(item.product.price * item.quantity) }}
+                            </p>
+                        </div>
+                        
+                        <!-- Remove Button -->
+                        <div class="ml-4">
+                            <a href="{{ url_for('remove_from_cart', cart_id=item.id) }}" 
+                               class="text-red-500 hover:text-red-700 transition duration-300"
+                               onclick="return confirm('Are you sure you want to remove this item?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                    <h2 class="text-xl font-semibold mb-6">Order Summary</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between">
+                            <span>Subtotal</span>
+                            <span>${{ "%.2f"|format(total) }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <span>Shipping</span>
+                            <span>${{ "%.2f"|format(10 if total > 0 else 0) }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between text-lg font-bold border-t border-gray-200 pt-4">
+                            <span>Total</span>
+                            <span>${{ "%.2f"|format(total + (10 if total > 0 else 0)) }}</span>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <a href="{{ url_for('checkout') }}" 
+                               class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition duration-300 block text-center">
+                                Proceed to Checkout
+                            </a>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="{{ url_for('products') }}" 
+                               class="w-full border border-blue-600 text-blue-600 py-3 px-6 rounded-lg font-semibold hover:bg-blue-50 transition duration-300 block text-center">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <!-- Empty Cart -->
+        <div class="text-center py-16 bg-white rounded-lg shadow-md">
+            <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-shopping-cart text-3xl text-gray-400"></i>
+            </div>
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Your cart is empty</h2>
+            <p class="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
+            <a href="{{ url_for('products') }}" 
+               class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">
+                Start Shopping
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR Experience - {{ product.name }} - LuxuryShop</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Montserrat", sans-serif;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      #container3D canvas {
+        width: 100vw !important;
+        height: 100vh !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      #sidebar {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+        background-color: rgba(42, 43, 60, 0.9);
+        padding: 15px;
+        border-radius: 15px;
+        width: 300px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 15px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        border-radius: 10px;
+        background-color: rgba(52, 52, 86, 0.8);
+        transition: all 0.3s ease;
+        text-align: center;
+        cursor: pointer;
+        height: 100px;
+        justify-content: center;
+      }
+
+      .item:hover {
+        background-color: rgba(74, 74, 120, 0.8);
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .item img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+      }
+
+      button {
+        margin: 5px 0;
+        padding: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(45deg, #f0a500, #d48806);
+        color: white;
+        transition: all 0.3s ease;
+        width: 100%;
+        font-weight: 600;
+      }
+
+      button:hover {
+        background: linear-gradient(45deg, #d48806, #f0a500);
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(240, 165, 0, 0.3);
+      }
+
+      /* Back button */
+      .back-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        background: rgba(42, 43, 60, 0.9);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .back-button:hover {
+        background: rgba(74, 74, 120, 0.9);
+        transform: translateY(-2px);
+      }
+
+      /* Product info overlay */
+      .product-info {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        background: rgba(42, 43, 60, 0.9);
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .product-info h3 {
+        margin: 0 0 5px 0;
+        color: #f0a500;
+      }
+
+      .product-info p {
+        margin: 0;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Back Button -->
+    <a
+      href="{{ url_for('product_detail', product_id=product.id) }}"
+      class="back-button"
+    >
+      <i class="fas fa-arrow-left"></i> Back to Product
+    </a>
+
+    <!-- Product Info Overlay -->
+    <div class="product-info">
+      <h3>{{ product.name }}</h3>
+      <p>${{ "%.2f"|format(product.price) }} | {{ product.category }}</p>
+    </div>
+
+    <div id="sidebar">
+      <div class="item">
+        <button class="wordButton" data-word="sofa">Sofa</button>
+      </div>
+      <div class="item">
+        <button class="wordButton" data-word="chair">Chair</button>
+      </div>
+      <div class="item">
+        <button class="wordButton" data-word="tv">Monitor</button>
+      </div>
+      <div class="item">
+        <button class="wordButton" data-word="phone">Phone</button>
+      </div>
+      <div class="item">
+        <button class="wordButton" data-word="lamp">Table Lamp</button>
+      </div>
+      <div class="item">
+        <button class="wordButton" data-word="table">Table</button>
+      </div>
+    </div>
+
+    <main>
+      <div id="container3D"></div>
+    </main>
+
+    <script type="module">
+      import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+      import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
+      import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById("container3D").appendChild(renderer.domElement);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+      let object;
+      let objToRender = "";
+
+      // Auto-load product based on category
+      function loadProductByCategory() {
+        const category = "{{ product.category|lower }}";
+        let modelName = "";
+
+        // Map product categories to 3D models
+        const categoryMap = {
+          furniture: "sofa",
+          electronics: "tv",
+          lighting: "lamp",
+          chair: "chair",
+          table: "table",
+        };
+
+        modelName = categoryMap[category] || "sofa";
+        loadModel(modelName);
+      }
+
+      document.querySelectorAll(".wordButton").forEach((button) => {
+        button.addEventListener("click", function () {
+          const word = this.getAttribute("data-word");
+          objToRender = word.trim().toLowerCase().replace(" ", "_");
+          loadModel(objToRender);
+        });
+      });
+
+      function loadModel(modelName) {
+        if (object) {
+          scene.remove(object);
+        }
+        const loader = new GLTFLoader();
+        loader.load(
+          `/static/models/${modelName}/scene.gltf`,
+          function (gltf) {
+            object = gltf.scene;
+            scene.add(object);
+
+            // Center and scale the model
+            const box = new THREE.Box3().setFromObject(object);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 10 / maxDim;
+
+            object.position.x = -center.x * scale;
+            object.position.y = -center.y * scale;
+            object.position.z = -center.z * scale;
+            object.scale.set(scale, scale, scale);
+          },
+          function (xhr) {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+          },
+          function (error) {
+            console.error("An error occurred while loading the model:", error);
+            // Fallback to a basic shape if model fails to load
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshBasicMaterial({
+              color: 0x00ff00,
+              wireframe: true,
+            });
+            object = new THREE.Mesh(geometry, material);
+            scene.add(object);
+          }
+        );
+      }
+
+      camera.position.z = 5;
+
+      const topLight = new THREE.DirectionalLight(0xffffff, 3);
+      topLight.position.set(500, 500, 500);
+      scene.add(topLight);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+      scene.add(ambientLight);
+
+      function animate() {
+        requestAnimationFrame(animate);
+        if (object) {
+          object.rotation.y += 0.01;
+        }
+        renderer.render(scene, camera);
+      }
+
+      window.addEventListener("resize", function () {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Load initial model based on product category
+      window.addEventListener("load", function () {
+        loadProductByCategory();
+        animate();
+      });
+    </script>
+  </body>
+</html>

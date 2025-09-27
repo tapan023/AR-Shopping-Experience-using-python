@@ -1,0 +1,136 @@
+{% extends "base.html" %} {% block title %}{{ product.name }} - LuxuryShop{%
+endblock %} {% block content %}
+<section class="py-12">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <!-- Product Images -->
+      <div>
+        <!-- Main Image -->
+        <div class="mb-4">
+          <img
+            id="main-product-image"
+            src="{{ product.main_image or '/static/images/placeholder.jpg' }}"
+            alt="{{ product.name }}"
+            class="w-full rounded-lg shadow-lg"
+          />
+        </div>
+
+        <!-- Thumbnail Gallery -->
+        {% if product.images %}
+        <div class="grid grid-cols-3 gap-2">
+          <!-- Main image thumbnail -->
+          <div class="cursor-pointer border-2 border-blue-500 p-1 rounded">
+            <img
+              src="{{ product.main_image }}"
+              alt="{{ product.name }}"
+              class="w-full h-16 object-cover"
+              onclick="changeMainImage('{{ product.main_image }}')"
+            />
+          </div>
+
+          <!-- Additional images -->
+          {% for image in product.images %}
+          <div
+            class="cursor-pointer border border-gray-200 p-1 rounded hover:border-blue-300"
+          >
+            <img
+              src="{{ image.image_url }}"
+              alt="{{ product.name }} - view {{ loop.index }}"
+              class="w-full h-16 object-cover"
+              onclick="changeMainImage('{{ image.image_url }}')"
+            />
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Product Details -->
+      <div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">
+          {{ product.name }}
+        </h1>
+        <p class="text-3xl font-bold text-blue-600 mb-6">
+          ${{ "%.2f"|format(product.price) }}
+        </p>
+
+        <div class="mb-6">
+          <span class="text-sm font-semibold text-gray-600">Category: </span>
+          <span class="text-sm text-gray-600">{{ product.category }}</span>
+        </div>
+
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold mb-2">Description</h3>
+          <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+        </div>
+
+        <div class="mb-6">
+          <span class="text-sm font-semibold">
+            Status: {% if product.stock > 0 %}
+            <span class="text-green-600"
+              >In Stock ({{ product.stock }} available)</span
+            >
+            {% else %}
+            <span class="text-red-600">Out of Stock</span>
+            {% endif %}
+          </span>
+        </div>
+
+        {% if product.stock > 0 %}
+        <form
+          action="{{ url_for('add_to_cart', product_id=product.id) }}"
+          method="POST"
+          class="space-y-4"
+        >
+          <div class="flex items-center space-x-4">
+            <label for="quantity" class="font-semibold">Quantity:</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value="1"
+              min="1"
+              max="{{ product.stock }}"
+              class="w-20 px-3 py-2 border border-gray-300 rounded-lg"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition duration-300"
+          >
+            <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+          </button>
+        </form>
+        {% endif %}
+
+        <!-- AR Experience Button -->
+        <!-- FIXED: Changed url_for('ar_experience.html') to url_for('ar_experience') -->
+        <div class="mt-4">
+          <a
+            href="{{ url_for('ar_experience', product_id=product.id) }}"
+            class="w-full bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition duration-300 flex items-center justify-center"
+          >
+            <i class="fas fa-vr-cardboard mr-2"></i>AR Experience
+          </a>
+        </div>
+
+        <div class="mt-6">
+          <a
+            href="{{ url_for('products') }}"
+            class="text-blue-500 hover:text-blue-700 transition duration-300"
+          >
+            <i class="fas fa-arrow-left mr-2"></i>Back to Products
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  function changeMainImage(imageUrl) {
+    document.getElementById("main-product-image").src = imageUrl;
+  }
+</script>
+{% endblock %}

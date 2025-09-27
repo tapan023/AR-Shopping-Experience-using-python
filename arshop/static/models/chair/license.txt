@@ -1,0 +1,11 @@
+Model Information:
+* title:	The Matrix Red Chesterfield Chair
+* source:	https://sketchfab.com/3d-models/the-matrix-red-chesterfield-chair-1fd13a270f2f44dbbf88fd3d4bcbb816
+* author:	Rodrigo Villani (https://sketchfab.com/rvillani)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "The Matrix Red Chesterfield Chair" (https://sketchfab.com/3d-models/the-matrix-red-chesterfield-chair-1fd13a270f2f44dbbf88fd3d4bcbb816) by Rodrigo Villani (https://sketchfab.com/rvillani) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
